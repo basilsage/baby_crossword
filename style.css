@@ -331,8 +331,68 @@ h1 {
   }
 }
 
+/* --- Mobile Clue Bar --- */
+.mobile-clue-bar {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: #fff;
+  border-top: 3px solid #4A8F39;
+  align-items: center;
+  padding: 8px 12px;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  gap: 8px;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.clue-nav-btn {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 50%;
+  border: 2px solid #4A8F39;
+  background: #fff;
+  color: #4A8F39;
+  font-size: 1.4rem;
+  font-weight: bold;
+  cursor: pointer;
+  touch-action: manipulation;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.clue-nav-btn:active {
+  background: #E8F5E0;
+}
+
+.clue-bar-text {
+  flex: 1;
+  text-align: center;
+  font-size: 0.9rem;
+  font-family: 'Georgia', serif;
+  color: #2D4A2D;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 /* --- Responsive --- */
 @media (max-width: 800px) {
+  .mobile-clue-bar {
+    display: flex;
+  }
+
+  body {
+    padding-bottom: 70px;
+  }
+
   .puzzle-container {
     flex-direction: column;
     align-items: center;
@@ -363,18 +423,22 @@ h1 {
 }
 
 @media (max-width: 420px) {
+  body {
+    padding: 10px 4px 70px 4px;
+  }
+
   #grid {
-    grid-template-columns: repeat(11, 24px);
-    grid-template-rows: repeat(15, 24px);
+    grid-template-columns: repeat(11, min(calc((100vw - 12px) / 11), 32px));
+    grid-template-rows: repeat(15, min(calc((100vw - 12px) / 11), 32px));
   }
 
   .cell {
-    width: 24px;
-    height: 24px;
+    width: min(calc((100vw - 12px) / 11), 32px);
+    height: min(calc((100vw - 12px) / 11), 32px);
   }
 
   .cell input {
-    font-size: 12px;
+    font-size: 14px;
     padding-top: 4px;
   }
 
@@ -383,6 +447,12 @@ h1 {
   }
 
   h1 {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
+    margin-bottom: 2px;
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+    margin-bottom: 12px;
   }
 }

@@ -141,6 +141,19 @@
     var clueId = "clue-" + word.num + "-" + word.dir;
     var clueLi = document.getElementById(clueId);
     if (clueLi) clueLi.classList.add("active-clue");
+    updateMobileClueBar();
+  }
+
+  function updateMobileClueBar() {
+    var barText = document.getElementById("clue-bar-text");
+    if (!barText) return;
+    var word = getCurrentWord();
+    if (word) {
+      var dirLabel = word.dir.charAt(0).toUpperCase() + word.dir.slice(1);
+      barText.textContent = word.num + " " + dirLabel + ": " + word.clue;
+    } else {
+      barText.textContent = "Tap a cell to begin";
+    }
   }
 
   // --- Input Handlers ---
@@ -273,15 +286,22 @@
   }
 
   function moveToNextWord(reverse) {
-    var currentWord = getCurrentWord();
-    if (!currentWord) return;
-
     // Build ordered list of words: across first sorted by num, then down sorted by num
     var acrossWords = words.filter(function (w) { return w.dir === "across"; })
       .sort(function (a, b) { return a.num - b.num; });
     var downWords = words.filter(function (w) { return w.dir === "down"; })
       .sort(function (a, b) { return a.num - b.num; });
     var allWords = acrossWords.concat(downWords);
+
+    var currentWord = getCurrentWord();
+    if (!currentWord) {
+      // No active clue: jump to first or last word
+      var fallback = reverse ? allWords[allWords.length - 1] : allWords[0];
+      currentDirection = fallback.dir;
+      var fallbackInp = getInput(fallback.row, fallback.col);
+      if (fallbackInp) fallbackInp.focus();
+      return;
+    }
 
     var idx = -1;
     for (var i = 0; i < allWords.length; i++) {
@@ -371,10 +391,48 @@
     }
   }
 
+  // --- Mobile Clue Bar ---
+  function setupViewportTracking() {
+    var clueBar = document.getElementById("mobile-clue-bar");
+    if (!clueBar) return;
+
+    if (window.visualViewport) {
+      var onViewportChange = function () {
+        var vv = window.visualViewport;
+        var keyboardHeight = window.innerHeight - (vv.offsetTop + vv.height);
+        if (keyboardHeight > 0) {
+          clueBar.style.bottom = keyboardHeight + "px";
+        } else {
+          clueBar.style.bottom = "0";
+        }
+      };
+      window.visualViewport.addEventListener("resize", onViewportChange);
+      window.visualViewport.addEventListener("scroll", onViewportChange);
+    }
+  }
+
+  function initMobileClueBar() {
+    var prevBtn = document.getElementById("clue-prev");
+    var nextBtn = document.getElementById("clue-next");
+    if (!prevBtn || !nextBtn) return;
+
+    // Prevent buttons from stealing focus (which would dismiss the keyboard)
+    prevBtn.addEventListener("mousedown", function (e) { e.preventDefault(); });
+    prevBtn.addEventListener("touchstart", function (e) { e.preventDefault(); });
+    nextBtn.addEventListener("mousedown", function (e) { e.preventDefault(); });
+    nextBtn.addEventListener("touchstart", function (e) { e.preventDefault(); });
+
+    prevBtn.addEventListener("click", function () { moveToNextWord(true); });
+    nextBtn.addEventListener("click", function () { moveToNextWord(false); });
+
+    setupViewportTracking();
+  }
+
   // --- Init ---
   function init() {
     buildGrid();
     buildClues();
+    initMobileClueBar();
 
     document.getElementById("check-btn").addEventListener("click", checkPuzzle);
 
@@ -400,11 +458,6 @@
       }
     });
 
-    // Test button to show success modal
-    document.getElementById("test-success-btn").addEventListener("click", function () {
-      document.getElementById("modal-overlay").classList.add("show");
-      launchConfetti();
-    });
 
     // Focus first active cell
     var firstInput = getInput(0, 4);
