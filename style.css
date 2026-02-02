@@ -374,14 +374,10 @@ h1 {
 .clue-bar-text {
   flex: 1;
   text-align: center;
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   font-family: 'Georgia', serif;
   color: #2D4A2D;
   line-height: 1.3;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 
 /* --- Responsive --- */
