@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DJ &amp; Marie's Baby Shower Crossword</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h1>DJ &amp; Marie's Baby Crossword</h1>
+  <p class="subtitle">To learn the gender of our baby, solve the crossword!</p>
+
+  <div class="puzzle-container">
+    <div class="grid-wrapper">
+      <div id="grid"></div>
+    </div>
+
+    <div class="clues-container">
+      <div class="clue-section">
+        <h2>Across</h2>
+        <ul id="across-clues" class="clue-list"></ul>
+      </div>
+      <div class="clue-section">
+        <h2>Down</h2>
+        <ul id="down-clues" class="clue-list"></ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="button-row">
+    <button id="check-btn">Check Puzzle</button>
+
+  </div>
+
+  <div id="confetti-container"></div>
+
+  <div id="modal-overlay" class="modal-overlay success-overlay">
+    <div class="modal success-modal">
+      <img src="assets/bunny-happy.gif" alt="Yay!" class="modal-gif">
+      <h2>It's a Girl!</h2>
+      <p>We're so excited!</p>
+      <button id="modal-close">Close</button>
+    </div>
+  </div>
+
+  <div id="error-modal-overlay" class="modal-overlay">
+    <div class="modal">
+      <img src="assets/grooving.gif" alt="Oopsies!" class="modal-gif">
+      <h2>Oopsies!</h2>
+      <p>Try again!</p>
+      <button id="error-modal-close">Close</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

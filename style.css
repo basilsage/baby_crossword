@@ -1,0 +1,388 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  background-color: #F9FDF6;
+  color: #2D4A2D;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+h1 {
+  font-size: 2rem;
+  color: #2D4A2D;
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #4A7A3D;
+  margin-bottom: 24px;
+  text-align: center;
+  font-style: italic;
+}
+
+.puzzle-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 32px;
+  max-width: 1100px;
+  width: 100%;
+}
+
+/* --- Grid --- */
+.grid-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#grid {
+  display: inline-grid;
+  grid-template-columns: repeat(11, 36px);
+  grid-template-rows: repeat(15, 36px);
+  gap: 0;
+  border: 2px solid #B8DCA1;
+  background: #B8DCA1;
+}
+
+.cell {
+  width: 36px;
+  height: 36px;
+  position: relative;
+  background: #fff;
+}
+
+.cell.black {
+  background: #DCEFD0;
+  border: none;
+}
+
+.cell input {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #B8DCA1;
+  text-align: center;
+  font-size: 18px;
+  font-family: 'Georgia', serif;
+  font-weight: bold;
+  color: #2D4A2D;
+  background: transparent;
+  text-transform: uppercase;
+  outline: none;
+  padding: 0;
+  padding-top: 6px;
+  caret-color: #A1D974;
+}
+
+.cell input:focus {
+  border: 2px solid #A1D974;
+  background: #F0F9E8;
+}
+
+.cell .clue-number {
+  position: absolute;
+  top: 1px;
+  left: 2px;
+  font-size: 10px;
+  font-weight: bold;
+  color: #6a8a5a;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.cell.highlight {
+  background: #E8F5E0;
+}
+
+.cell.highlight input {
+  background: #E8F5E0;
+}
+
+.cell.current-word input {
+  border: 2px solid #3A7A2A;
+}
+
+.cell.incorrect input {
+  background: #fdd;
+  border-color: #e99;
+}
+
+.cell.correct input {
+  background: #dfd;
+  border-color: #9c9;
+}
+
+/* --- Clues --- */
+.clues-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 420px;
+  flex: 1;
+  min-width: 280px;
+}
+
+.clue-section h2 {
+  font-size: 1.1rem;
+  color: #2D4A2D;
+  margin-bottom: 8px;
+  border-bottom: 2px solid #2D4A2D;
+  padding-bottom: 4px;
+}
+
+.clue-list {
+  list-style: none;
+  padding: 0;
+}
+
+.clue-list li {
+  padding: 6px 8px;
+  margin-bottom: 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  transition: background 0.15s;
+}
+
+.clue-list li:hover {
+  background: #E8F5E0;
+}
+
+.clue-list li.active-clue {
+  background: #DCF0D0;
+  font-weight: bold;
+}
+
+.clue-list li span.clue-num {
+  font-weight: bold;
+  color: #2D4A2D;
+  margin-right: 4px;
+}
+
+/* --- Button --- */
+.button-row {
+  margin-top: 24px;
+  text-align: center;
+  width: 100%;
+}
+
+#check-btn {
+  background: #4A8F39;
+  color: #fff;
+  border: none;
+  padding: 12px 36px;
+  font-size: 1.1rem;
+  font-family: 'Georgia', serif;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  box-shadow: 0 3px 10px rgba(74, 143, 57, 0.3);
+}
+
+#check-btn:hover {
+  background: #3B7A2E;
+  transform: translateY(-1px);
+}
+
+#check-btn:active {
+  transform: translateY(0);
+}
+
+/* --- Modal --- */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(74, 90, 74, 0.5);
+  z-index: 100;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-overlay.show {
+  display: flex;
+}
+
+/* Pink overlay for the success/gender reveal modal */
+.success-overlay {
+  background: rgba(219, 112, 147, 0.3);
+}
+
+.modal {
+  background: #fff;
+  border-radius: 20px;
+  padding: 40px 48px;
+  text-align: center;
+  max-width: 460px;
+  width: 90%;
+  box-shadow: 0 8px 40px rgba(161, 217, 116, 0.35);
+  animation: popIn 0.3s ease-out;
+}
+
+/* Light pink success modal */
+.success-modal {
+  background: #FFF0F5;
+  box-shadow: 0 8px 40px rgba(255, 182, 193, 0.45);
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.modal-gif {
+  max-width: 180px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.modal h2 {
+  font-size: 1.6rem;
+  color: #A1D974;
+  margin-bottom: 12px;
+}
+
+.success-modal h2 {
+  font-size: 2rem;
+  color: #E75480;
+}
+
+.modal p {
+  font-size: 1rem;
+  color: #2D4A2D;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.modal button {
+  background: #4A8F39;
+  color: #fff;
+  border: none;
+  padding: 10px 30px;
+  font-size: 1rem;
+  font-family: 'Georgia', serif;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.success-modal button {
+  background: #E75480;
+}
+
+.modal button:hover {
+  background: #3B7A2E;
+}
+
+.success-modal button:hover {
+  background: #C44569;
+}
+
+/* --- Confetti --- */
+#confetti-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 99;
+  overflow: hidden;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -20px;
+  width: 10px;
+  height: 10px;
+  opacity: 0;
+  animation: confettiFall linear forwards;
+}
+
+@keyframes confettiFall {
+  0% {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(100vh) rotate(720deg) scale(0.5);
+  }
+}
+
+/* --- Responsive --- */
+@media (max-width: 800px) {
+  .puzzle-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #grid {
+    grid-template-columns: repeat(11, 28px);
+    grid-template-rows: repeat(15, 28px);
+  }
+
+  .cell {
+    width: 28px;
+    height: 28px;
+  }
+
+  .cell input {
+    font-size: 14px;
+    padding-top: 5px;
+  }
+
+  .cell .clue-number {
+    font-size: 8px;
+  }
+
+  .clues-container {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  #grid {
+    grid-template-columns: repeat(11, 24px);
+    grid-template-rows: repeat(15, 24px);
+  }
+
+  .cell {
+    width: 24px;
+    height: 24px;
+  }
+
+  .cell input {
+    font-size: 12px;
+    padding-top: 4px;
+  }
+
+  .cell .clue-number {
+    font-size: 7px;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+  }
+}
