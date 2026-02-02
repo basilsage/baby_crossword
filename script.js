@@ -1,38 +1,45 @@
 (function () {
   "use strict";
 
+  // --- SHA-256 Helper ---
+  async function sha256(msg) {
+    var data = new TextEncoder().encode(msg);
+    var buf = await crypto.subtle.digest("SHA-256", data);
+    var arr = Array.from(new Uint8Array(buf));
+    return arr.map(function (b) { return b.toString(16).padStart(2, "0"); }).join("");
+  }
+
   // --- Puzzle Data ---
   var ROWS = 15;
   var COLS = 11;
 
   var words = [
     // Across
-    { num: 1, dir: "across", answer: "VIETNAM", row: 0, col: 4, clue: "DJ and Marie\u2019s favorite country from their honeymoon." },
-    { num: 5, dir: "across", answer: "SEPTEMBER", row: 4, col: 0, clue: "What month did Marie and DJ meet?" },
-    { num: 6, dir: "across", answer: "JUNIOR", row: 7, col: 0, clue: "DJ and Marie met during their ___ year at Cal." },
-    { num: 8, dir: "across", answer: "OAHU", row: 8, col: 7, clue: "What\u2019s Marie and DJ\u2019s favorite vacation ever?" },
-    { num: 10, dir: "across", answer: "CLAREMONT", row: 11, col: 2, clue: "DJ and Marie stayed at this hotel after getting married." },
-    { num: 11, dir: "across", answer: "THURSDAY", row: 14, col: 3, clue: "What day of the week is reserved for date nights with DJ and Marie?" },
+    { num: 1, dir: "across", hash: "a49e5ae168cfd1afcd15d36b3382e1cf6b7ee19a4f8a65977453b980830d7799", len: 7, row: 0, col: 4, clue: "DJ and Marie\u2019s favorite country from their honeymoon." },
+    { num: 5, dir: "across", hash: "3787ceb2c5521a6e481af768dafdbbe5d741ec6939ac42a972f5b4d90cf41fa2", len: 9, row: 4, col: 0, clue: "What month did Marie and DJ meet?" },
+    { num: 6, dir: "across", hash: "414a32c40bcb00675dde2af6f1b6fe51c97b45457f46d030d8a7a395a99d7ebc", len: 6, row: 7, col: 0, clue: "DJ and Marie met during their ___ year at Cal." },
+    { num: 8, dir: "across", hash: "8093a447e60c954eb902ce25f84bf22cb627b21c3fcad37fbe8bf843b7b4ef8f", len: 4, row: 8, col: 7, clue: "What\u2019s Marie and DJ\u2019s favorite vacation ever?" },
+    { num: 10, dir: "across", hash: "69769da742746f3d2c77ecb3089f67e0b3cda6138e788157be9403d04c22fef9", len: 9, row: 11, col: 2, clue: "DJ and Marie stayed at this hotel after getting married." },
+    { num: 11, dir: "across", hash: "88854c40fd5fbe9721ad6f5dedce7960fa449e846806409e3d3932230794989c", len: 8, row: 14, col: 3, clue: "What day of the week is reserved for date nights with DJ and Marie?" },
     // Down
-    { num: 2, dir: "down", answer: "TILDEN", row: 0, col: 7, clue: "What park did DJ and Marie get married in?" },
-    { num: 3, dir: "down", answer: "SYMPHONY", row: 1, col: 2, clue: "What was DJ and Marie\u2019s first official date?" },
-    { num: 4, dir: "down", answer: "SUMMERBEAR", row: 2, col: 5, clue: "\u201cPenny Rabbit and ______\u201d was DJ and Marie\u2019s first dance song." },
-    { num: 7, dir: "down", answer: "COLUMBUS", row: 7, col: 7, clue: "What street do DJ and Marie live on?" },
-    { num: 9, dir: "down", answer: "ACAI", row: 10, col: 2, clue: "What food do DJ and Marie eat every weekend together?" }
+    { num: 2, dir: "down", hash: "a86066315f1ca3310dfffb31c63f3e2d4888dcac1830f2cce77095870f7a7753", len: 6, row: 0, col: 7, clue: "What park did DJ and Marie get married in?" },
+    { num: 3, dir: "down", hash: "cd99f97a835673d075c2fc1f4a9bb5c40b95a670f97081910a39e1871dc1c85a", len: 8, row: 1, col: 2, clue: "What was DJ and Marie\u2019s first official date?" },
+    { num: 4, dir: "down", hash: "fb0299e06ec28a00dce6cf169af4ae6682adf2c442a02f566b4c98911303fbfa", len: 10, row: 2, col: 5, clue: "\u201cPenny Rabbit and ______\u201d was DJ and Marie\u2019s first dance song." },
+    { num: 7, dir: "down", hash: "0ed2316e4d6ad30445b2be602897efeeef27f3822435d0cfe134b1db24bf5330", len: 8, row: 7, col: 7, clue: "What street do DJ and Marie live on?" },
+    { num: 9, dir: "down", hash: "96cc25e6cfa39d2c4630a1f900fa5062c1f86e3d213171ed5446f6f789dddaee", len: 4, row: 10, col: 2, clue: "What food do DJ and Marie eat every weekend together?" }
   ];
 
-  // Build set of active cells and their expected letters
-  // Key: "row-col", value: expected letter
-  var cellData = {};   // "r-c" -> { letter, numbers: [], acrossWord, downWord }
+  // Build set of active cells
+  var cellData = {};   // "r-c" -> { acrossWord, downWord }
   var clueNumbers = {}; // "r-c" -> number (for first-cell-of-word numbering)
 
   words.forEach(function (w) {
-    for (var i = 0; i < w.answer.length; i++) {
+    for (var i = 0; i < w.len; i++) {
       var r = w.dir === "across" ? w.row : w.row + i;
       var c = w.dir === "across" ? w.col + i : w.col;
       var key = r + "-" + c;
       if (!cellData[key]) {
-        cellData[key] = { letter: w.answer[i], acrossWord: null, downWord: null };
+        cellData[key] = { acrossWord: null, downWord: null };
       }
       if (w.dir === "across") {
         cellData[key].acrossWord = w;
@@ -99,7 +106,7 @@
 
   function getWordCells(word) {
     var cells = [];
-    for (var i = 0; i < word.answer.length; i++) {
+    for (var i = 0; i < word.len; i++) {
       var r = word.dir === "across" ? word.row : word.row + i;
       var c = word.dir === "across" ? word.col + i : word.col;
       cells.push({ row: r, col: c });
@@ -354,21 +361,27 @@
   }
 
   // --- Check Puzzle ---
-  function checkPuzzle() {
+  async function checkPuzzle() {
+    var btn = document.getElementById("check-btn");
+    btn.disabled = true;
+
     var allCorrect = true;
 
-    words.forEach(function (w) {
-      for (var i = 0; i < w.answer.length; i++) {
+    for (var wi = 0; wi < words.length; wi++) {
+      var w = words[wi];
+      var assembled = "";
+      for (var i = 0; i < w.len; i++) {
         var r = w.dir === "across" ? w.row : w.row + i;
         var c = w.dir === "across" ? w.col + i : w.col;
         var inp = getInput(r, c);
-        if (!inp) continue;
-        var val = inp.value.toUpperCase();
-        if (val !== w.answer[i]) {
-          allCorrect = false;
-        }
+        assembled += inp ? inp.value.toUpperCase() : "";
       }
-    });
+      var h = await sha256(assembled);
+      if (h !== w.hash) {
+        allCorrect = false;
+        break;
+      }
+    }
 
     // Clear previous correct state
     document.querySelectorAll(".cell.correct").forEach(function (el) {
@@ -382,6 +395,9 @@
         var cellDiv = document.querySelector('.cell[data-row="' + parts[0] + '"][data-col="' + parts[1] + '"]');
         if (cellDiv) cellDiv.classList.add("correct");
       });
+      // Inject reveal text from char codes
+      var reveal = String.fromCharCode(73, 116, 39, 115, 32, 97, 32, 71, 105, 114, 108, 33);
+      document.getElementById("reveal-text").textContent = reveal;
       setTimeout(function () {
         document.getElementById("modal-overlay").classList.add("show");
         launchConfetti();
@@ -389,6 +405,8 @@
     } else {
       document.getElementById("error-modal-overlay").classList.add("show");
     }
+
+    btn.disabled = false;
   }
 
   // --- Mobile Clue Bar ---
