@@ -335,17 +335,18 @@ h1 {
 .mobile-clue-bar {
   display: none;
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  bottom: 8px;
+  left: 10px;
+  right: 10px;
   z-index: 50;
   background: #fff;
-  border-top: 3px solid #4A8F39;
+  border: 2px solid #4A8F39;
+  border-radius: 16px;
   align-items: center;
   padding: 8px 12px;
   padding-bottom: calc(8px + env(safe-area-inset-bottom));
   gap: 8px;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
 .clue-nav-btn {

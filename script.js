@@ -401,9 +401,9 @@
         var vv = window.visualViewport;
         var keyboardHeight = window.innerHeight - (vv.offsetTop + vv.height);
         if (keyboardHeight > 0) {
-          clueBar.style.bottom = keyboardHeight + "px";
+          clueBar.style.bottom = (keyboardHeight + 4) + "px";
         } else {
-          clueBar.style.bottom = "0";
+          clueBar.style.bottom = "8px";
         }
       };
       window.visualViewport.addEventListener("resize", onViewportChange);
