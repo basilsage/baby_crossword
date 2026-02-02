@@ -417,13 +417,24 @@
     if (!prevBtn || !nextBtn) return;
 
     // Prevent buttons from stealing focus (which would dismiss the keyboard)
-    prevBtn.addEventListener("mousedown", function (e) { e.preventDefault(); });
-    prevBtn.addEventListener("touchstart", function (e) { e.preventDefault(); });
-    nextBtn.addEventListener("mousedown", function (e) { e.preventDefault(); });
-    nextBtn.addEventListener("touchstart", function (e) { e.preventDefault(); });
-
-    prevBtn.addEventListener("click", function () { moveToNextWord(true); });
-    nextBtn.addEventListener("click", function () { moveToNextWord(false); });
+    // and trigger navigation in the same handler since preventDefault on
+    // touchstart blocks the subsequent click event on mobile.
+    prevBtn.addEventListener("mousedown", function (e) {
+      e.preventDefault();
+      moveToNextWord(true);
+    });
+    prevBtn.addEventListener("touchstart", function (e) {
+      e.preventDefault();
+      moveToNextWord(true);
+    });
+    nextBtn.addEventListener("mousedown", function (e) {
+      e.preventDefault();
+      moveToNextWord(false);
+    });
+    nextBtn.addEventListener("touchstart", function (e) {
+      e.preventDefault();
+      moveToNextWord(false);
+    });
 
     setupViewportTracking();
   }
